@@ -1,0 +1,220 @@
+{
+  "name": "acme-assembler",
+  "displayName": "ACME Assembler",
+  "description": "Syntax highlighting and formatting for ACME assembler",
+  "version": "0.1.0",
+  "publisher": "matjam",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "acme",
+        "aliases": [
+          "ACME Assembler",
+          "acme"
+        ],
+        "extensions": [
+          ".a",
+          ".asm"
+        ],
+        "configuration": "./languages/acme-language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "acme",
+        "scopeName": "source.acme",
+        "path": "./syntaxes/acme.tmLanguage.json"
+      }
+    ],
+    "formatters": [
+      {
+        "language": "acme",
+        "id": "acme-formatter"
+      }
+    ],
+    "commands": [
+      {
+        "command": "acme.assemble",
+        "title": "Assemble File",
+        "category": "ACME"
+      },
+      {
+        "command": "acme.assembleAndRun",
+        "title": "Assemble and Run",
+        "category": "ACME"
+      },
+      {
+        "command": "acme.assembleAndRunEmulator",
+        "title": "Assemble and Run on Emulator",
+        "category": "ACME"
+      },
+      {
+        "command": "acme.assembleAndRunMega65",
+        "title": "Assemble and Run on MEGA65",
+        "category": "ACME"
+      },
+      {
+        "command": "acme.buildProject",
+        "title": "Build Project",
+        "category": "ACME"
+      },
+      {
+        "command": "acme.showOutput",
+        "title": "Show Output",
+        "category": "ACME"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "acme.assemble",
+          "when": "resourceExtname == '.a' || resourceExtname == '.asm'",
+          "group": "acme"
+        },
+        {
+          "command": "acme.assembleAndRun",
+          "when": "resourceExtname == '.a' || resourceExtname == '.asm'",
+          "group": "acme"
+        },
+        {
+          "command": "acme.assembleAndRunEmulator",
+          "when": "resourceExtname == '.a' || resourceExtname == '.asm'",
+          "group": "acme"
+        },
+        {
+          "command": "acme.assembleAndRunMega65",
+          "when": "resourceExtname == '.a' || resourceExtname == '.asm'",
+          "group": "acme"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "acme.buildProject",
+          "when": "resourceExtname == '.a' || resourceExtname == '.asm'",
+          "group": "acme"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "ACME Assembler",
+      "properties": {
+        "acme.binaryPath": {
+          "type": "string",
+          "default": "acme",
+          "description": "Path to the ACME assembler binary"
+        },
+        "acme.outputDirectory": {
+          "type": "string",
+          "default": "out",
+          "description": "Directory for output files"
+        },
+        "acme.defaultFormat": {
+          "type": "string",
+          "enum": [
+            "prg",
+            "cbm",
+            "bin",
+            "d64"
+          ],
+          "default": "prg",
+          "description": "Default output format"
+        },
+        "acme.verboseOutput": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable verbose output from ACME"
+        },
+        "acme.autoAssemble": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically assemble on save"
+        },
+        "acme.emulatorBinary": {
+          "type": "string",
+          "default": "xmega65",
+          "description": "Path to the MEGA65 emulator binary (xmega65). Get it from https://github.com/lgblgblgb/xemu"
+        },
+        "acme.runMode": {
+          "type": "string",
+          "enum": [
+            "emulator",
+            "etherload"
+          ],
+          "default": "emulator",
+          "description": "How to run assembled programs: 'emulator' uses xmega65, 'etherload' uses MEGA65 etherload command"
+        },
+        "acme.etherloadCommand": {
+          "type": "string",
+          "default": "etherload",
+          "description": "Command to run programs on MEGA65 via etherload (e.g., 'etherload' or 'm65 -l')"
+        },
+        "acme.showTerminalOnRun": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show terminal when running programs (set to true for interactive programs like emulators)"
+        }
+      }
+    },
+    "taskDefinitions": [
+      {
+        "type": "acme",
+        "required": [
+          "file"
+        ],
+        "properties": {
+          "file": {
+            "type": "string",
+            "description": "The ACME source file to assemble"
+          },
+          "format": {
+            "type": "string",
+            "description": "Output format (prg, cbm, bin, d64)"
+          },
+          "outputDir": {
+            "type": "string",
+            "description": "Output directory"
+          },
+          "verbose": {
+            "type": "boolean",
+            "description": "Enable verbose output"
+          }
+        }
+      }
+    ],
+    "problemMatchers": [
+      {
+        "name": "acme",
+        "owner": "acme",
+        "fileLocation": "absolute",
+        "pattern": {
+          "regexp": "^(.*):(\\d+):(\\d+):\\s+(error|warning):\\s+(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "message": 5
+        }
+      }
+    ]
+  },
+  "activationEvents": [
+    "onLanguage:acme"
+  ],
+  "main": "./out/extension.js",
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "node scripts/generate-instructions.js; tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "16.x",
+    "@types/vscode": "^1.74.0",
+    "typescript": "^4.9.4"
+  }
+}

@@ -1,0 +1,9 @@
+Branch Sub-Routine
+SP $\leftarrow$ SP $-$ 2, STACK $\leftarrow$ PC $+$ len(V), PC $\leftarrow$ PC $+$ V
+
+This instruction branches to the indicated address, saving
+the address of the following instruction on the stack, so that
+the routine can be returned from using an RTS instruction.
+
+This instruction is helpful for using relocatable code, as it
+provides a relative-addressed alternative to JSR.

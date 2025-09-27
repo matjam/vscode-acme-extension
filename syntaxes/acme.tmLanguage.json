@@ -1,0 +1,218 @@
+{
+  "scopeName": "source.acme",
+  "name": "ACME Assembler",
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#directives"
+    },
+    {
+      "include": "#labels"
+    },
+    {
+      "include": "#instructions"
+    },
+    {
+      "include": "#numbers"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "include": "#operators"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.semicolon.acme",
+          "begin": ";",
+          "end": "$",
+          "patterns": [
+            {
+              "name": "comment.line.semicolon.acme",
+              "match": "."
+            }
+          ]
+        }
+      ]
+    },
+    "directives": {
+      "patterns": [
+        {
+          "name": "keyword.control.directive.acme",
+          "match": "^\\s*(!\\w+)\\b"
+        },
+        {
+          "name": "keyword.control.directive.acme",
+          "match": "\\b(!\\w+)\\b"
+        },
+        {
+          "name": "keyword.control.conditional.acme",
+          "match": "\\b(!if|!ifdef|!ifndef|!else|!endif)\\b"
+        },
+        {
+          "name": "keyword.control.macro.acme",
+          "match": "\\b(!macro|!endmacro)\\b"
+        },
+        {
+          "name": "keyword.control.loop.acme",
+          "match": "\\b(!for|!while|!wend)\\b"
+        },
+        {
+          "name": "keyword.control.set.acme",
+          "match": "\\b(!set|!let)\\b"
+        },
+        {
+          "name": "keyword.control.include.acme",
+          "match": "\\b(!src|!include)\\b"
+        },
+        {
+          "name": "keyword.control.output.acme",
+          "match": "\\b(!to|!cpu|!addr|!align)\\b"
+        },
+        {
+          "name": "keyword.control.data.acme",
+          "match": "\\b(!8|!16|!24|!32|!by|!byte|!wo|!word|!d24|!pet|!text|!scr|!fill|!fillw|!skip|!skipw)\\b"
+        }
+      ]
+    },
+    "labels": {
+      "patterns": [
+        {
+          "name": "entity.name.tag.label.acme",
+          "match": "^\\s*([a-zA-Z_@][a-zA-Z0-9_@]*)\\s*:"
+        },
+        {
+          "name": "entity.name.tag.label.acme",
+          "match": "\\b([a-zA-Z_@][a-zA-Z0-9_@]*)\\s*:"
+        },
+        {
+          "name": "entity.name.tag.local-label.acme",
+          "match": "^\\s*([+-]+)\\s*:"
+        },
+        {
+          "name": "entity.name.tag.local-label.acme",
+          "match": "\\b([+-]+)\\s*:"
+        },
+        {
+          "name": "entity.name.tag.anonymous-label.acme",
+          "match": "^\\s*([+-]+)(?=\\s|$)"
+        },
+        {
+          "name": "entity.name.tag.anonymous-label.acme",
+          "match": "\\b([+-]+)(?=\\s|$)"
+        }
+      ]
+    },
+    "instructions": {
+      "patterns": [
+        {
+          "name": "keyword.control.instruction.acme",
+          "match": "(?i)\\b(adc|adcq|alr|anc|and|andq|arr|asl|aslq|asr|asrq|asw|bbr0|bbr1|bbr2|bbr3|bbr4|bbr5|bbr6|bbr7|bbs0|bbs1|bbs2|bbs3|bbs4|bbs5|bbs6|bbs7|bcc|bcs|beq|bit|bitq|bmi|bne|bpl|bra|brk|bsr|bvc|bvs|clc|cld|cle|cli|clv|cmp|cmpq|cpx|cpy|cpz|dcp|dec|deq|dew|dex|dey|dez|eom|eor|eorq|inc|inq|inw|inx|iny|inz|isc|jmp|jsr|kil|las|lax|lda|ldq|ldx|ldy|ldz|lsr|lsrq|map|neg|nop|ora|orq|pha|php|phw|phx|phy|phz|pla|plp|plx|ply|plz|rla|rmb0|rmb1|rmb2|rmb3|rmb4|rmb5|rmb6|rmb7|rol|rolq|ror|rorq|row|rra|rsvq|rti|rts|sax|sbc|sbcq|sbx|sec|sed|see|sei|sha|shx|shy|slo|smb0|smb1|smb2|smb3|smb4|smb5|smb6|smb7|sre|sta|stq|stx|sty|stz|tab|tas|tax|tay|taz|tba|trb|tsb|tsx|tsy|txa|txs|tya|tys|tza|xaa)\\b"
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.hex.acme",
+          "match": "\\$[0-9a-fA-F]+"
+        },
+        {
+          "name": "constant.numeric.binary.acme",
+          "match": "%[01]+"
+        },
+        {
+          "name": "constant.numeric.decimal.acme",
+          "match": "\\b\\d+\\b"
+        },
+        {
+          "name": "constant.numeric.character.acme",
+          "match": "'[^']*'"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.acme",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.acme",
+              "match": "\\\\."
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.single.acme",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            {
+              "name": "constant.character.escape.acme",
+              "match": "\\\\."
+            }
+          ]
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.acme",
+          "match": "\\b(and|or|xor|not|shl|shr|rol|ror|high|low|hibyte|lobyte)\\b"
+        },
+        {
+          "name": "punctuation.separator.acme",
+          "match": ","
+        },
+        {
+          "name": "punctuation.definition.expression.acme",
+          "match": "[\\[\\]\\(\\)]"
+        },
+        {
+          "name": "keyword.operator.arithmetic.acme",
+          "match": "[\\+\\-\\*/%]"
+        },
+        {
+          "name": "keyword.operator.comparison.acme",
+          "match": "[<>=!]="
+        },
+        {
+          "name": "keyword.operator.logical.acme",
+          "match": "[&|^~]"
+        },
+        {
+          "name": "keyword.operator.shift.acme",
+          "match": "[<>]{1,2}"
+        },
+        {
+          "name": "keyword.operator.power.acme",
+          "match": "\\^"
+        }
+      ]
+    },
+    "registers": {
+      "patterns": [
+        {
+          "name": "variable.other.register.acme",
+          "match": "\\b(a|x|y|sp|pc|sr|p|s|z|n|v|c|d|i|b)\\b"
+        }
+      ]
+    },
+    "addressing-modes": {
+      "patterns": [
+        {
+          "name": "keyword.other.addressing-mode.acme",
+          "match": "\\b(immediate|absolute|zero-page|indexed|indirect|relative|accumulator|implied)\\b"
+        }
+      ]
+    }
+  }
+}

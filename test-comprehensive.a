@@ -1,0 +1,560 @@
+; Comprehensive ACME Assembly Test File
+; This file demonstrates all supported features of the ACME formatter and syntax highlighter
+
+; =============================================================================
+; PREAMBLE SECTION - Directives and definitions
+; =============================================================================
+
+!cpu m65
+!to "test-comprehensive.prg", cbm
+
+; Address definitions
+    * = $0800
+
+; Symbol definitions
+    SYSTEM = 64
+    VERSION = 1
+    DEBUG = 0
+
+; Memory layout definitions
+!addr {
+; Basic system variables
+    sys_iirq = $0314
+    sys_nmi = $0318
+    
+; I/O registers
+    sid_pot = $d419
+    cia1_pra = $dc00
+    cia1_prb = $dc01
+    cia1_ddrb = $dc03
+    
+; C128 specific
+    !if SYSTEM = 128 {
+        mmu_cr = $ff00
+        vdc_cr = $d600
+    }
+    
+; Data storage
+    buffer = $2000
+    temp_var = $2001
+    counter = $2002
+}
+
+; =============================================================================
+; MACRO DEFINITIONS
+; =============================================================================
+
+!macro SpriteLine {
+    lda	#$ff
+    sta	$2000, x
+    inx
+}
+
+!macro Delay {
+    ldy	#$10
+-
+    dey
+    bne	-
+}
+
+!macro PushRegisters {
+    pha
+    txa
+    pha
+    tya
+    pha
+}
+
+!macro PopRegisters {
+    pla
+    tay
+    pla
+    tax
+    pla
+}
+
+; =============================================================================
+; DATA SECTION
+; =============================================================================
+
+; String data
+messages:
+    !pet "Hello, World!", 0
+    !pet "ACME Assembly Test", 0
+    !pet "Formatting Demo", 0
+
+; Numeric data
+data_table:
+    !byte $01, $02, $03, $04
+    !word $1234, $5678, $9abc, $def0
+    !byte $78, $56, $34, $12 ; 32-bit values as bytes
+    !byte $f0, $de, $bc, $9a
+
+; Binary data
+bit_patterns:
+    !8 %10101010
+    !8 %01010101
+    !8 %11110000
+    !8 %00001111
+
+; =============================================================================
+; MAIN PROGRAM
+; =============================================================================
+
+main:
+; Initialize system
+    sei
+    lda	#$00
+    sta	$d020
+    sta	$d021
+    
+; Set up interrupt handler
+    lda	#<irq_handler
+    sta	sys_iirq
+    lda	#>irq_handler
+    sta	sys_iirq + 1
+    
+; Clear screen
+    jsr	clear_screen
+    
+; Display welcome message
+    ldx	#0
+    ldy	#0
+    jsr	print_string
+    
+; Main loop
+main_loop:
+    jsr	read_input
+    jsr	update_display
+    jsr	check_timer
+    
+; Conditional execution
+    !if DEBUG {
+        jsr	debug_output
+    }
+    
+    jmp	main_loop
+
+; =============================================================================
+; SUBROUTINES
+; =============================================================================
+
+; Clear screen subroutine
+clear_screen:
+    ldx	#$00
+    lda	#$20
+-
+    sta	$0400, x
+    sta	$0500, x
+    sta	$0600, x
+    sta	$0700, x
+    inx
+    bne	-
+    rts
+
+; Print string subroutine
+print_string:
+    lda	messages, x
+    beq	+
+    jsr	k_chrout
+    inx
+    jmp	print_string
++
+    rts
+
+k_chrout
+    brk
+
+; Read input subroutine
+read_input:
+; Check keyboard
+    lda	$dc01
+    and	#$10
+    beq	key_pressed
+    
+; Check joystick
+    lda	$dc00
+    and	#$10
+    beq	joy_pressed
+    
+    rts
+
+key_pressed:
+; Handle key press
+    lda	#$01
+    sta	temp_var
+    rts
+
+joy_pressed:
+; Handle joystick press
+    lda	#$02
+    sta	temp_var
+    rts
+
+; Update display subroutine
+update_display:
+; Update counter
+    inc	counter
+    lda	counter
+    cmp	#$ff
+    bne	+
+    lda	#$00
+    sta	counter
++   
+; Update sprite positions
+    ldx	#0
+    ldy	#0
+    jsr	update_sprites
+    
+    rts
+
+; Update sprites subroutine
+update_sprites:
+; Use macro for sprite line
+    +SpriteLine
+    +SpriteLine
+    +SpriteLine
+    
+; Add delay
+    +Delay
+    
+    rts
+
+; Check timer subroutine
+check_timer:
+; Simple timer check
+    lda	$d012
+    and	#$0f
+    bne	+
+    
+; Timer expired
+    lda	#$01
+    sta	temp_var
++
+    rts
+
+; Debug output subroutine
+debug_output:
+    !if DEBUG {
+        lda	counter
+        jsr	print_hex
+        lda	#$0d
+        jsr	k_chrout
+    }
+    rts
+
+; Print hex subroutine
+print_hex:
+    pha
+    lsr
+    lsr
+    lsr
+    lsr
+    jsr	print_nibble
+    pla
+    and	#$0f
+    jsr	print_nibble
+    rts
+
+print_nibble:
+    cmp	#$0a
+    bcc	+
+    adc	#$06
++
+    adc	#$30
+    jmp	k_chrout
+
+; =============================================================================
+; INTERRUPT HANDLERS
+; =============================================================================
+
+; IRQ handler
+irq_handler:
+; Save registers
+    +PushRegisters
+    
+; Handle different interrupt sources
+    lda	$d019
+    and	#$01
+    beq	+
+    jsr	raster_irq
++   
+    lda	$d019
+    and	#$02
+    beq	+
+    jsr	sprite_irq
++   
+; Restore registers
+    +PopRegisters
+    
+; Acknowledge interrupt
+    lda	$d019
+    sta	$d019
+    
+    rti
+
+; Raster interrupt
+raster_irq:
+; Update display
+    lda	#$01
+    sta	$d020
+    
+; Reset raster position
+    lda	#$00
+    sta	$d012
+    
+    rts
+
+; Sprite interrupt
+sprite_irq:
+; Update sprite data
+    ldx	#0
+-
+    lda	sprite_data, x
+    sta	$07f8, x
+    inx
+    cpx	#8
+    bne	-
+    
+    rts
+
+; =============================================================================
+; DATA TABLES
+; =============================================================================
+
+; Sprite data
+sprite_data:
+    !byte $00, $01, $02, $03, $04, $05, $06, $07
+
+; Lookup tables
+sin_table:
+    !byte $00, $01, $02, $03, $04, $05, $06, $07
+    !byte $08, $09, $0a, $0b, $0c, $0d, $0e, $0f
+
+cos_table:
+    !byte $10, $11, $12, $13, $14, $15, $16, $17
+    !byte $18, $19, $1a, $1b, $1c, $1d, $1e, $1f
+
+; =============================================================================
+; CONDITIONAL COMPILATION
+; =============================================================================
+
+; Different code for different systems
+    !if SYSTEM = 64 {
+; C64 specific code
+        lda	#$00
+        sta	$d020
+        sta	$d021
+    } else {
+; C128 specific code
+            lda	#$00
+            sta	$d020
+            sta	$d021
+            lda	#$00
+            sta	mmu_cr
+        }
+
+; Debug code
+        !if DEBUG {
+; Debug output
+            lda	#$01
+            sta	$d020
+        }
+
+; =============================================================================
+; COMPLEX EXPRESSIONS
+; =============================================================================
+
+; Complex addressing modes
+complex_addressing:
+; Indirect addressing
+        lda	($10, x)
+        sta	($20), y
+    
+; Absolute addressing
+        lda	$1234
+        sta	$5678
+    
+; Indexed addressing
+        lda	$1000, x
+        sta	$2000, y
+    
+; Zero page addressing
+        lda	$10
+        sta	$20
+    
+; Immediate addressing
+        lda	#$ff
+        ldx	#$00
+        ldy	#$01
+
+; =============================================================================
+; BRANCH INSTRUCTIONS
+; =============================================================================
+
+branch_test:
+; Conditional branches
+        bcc	branch_1
+        bcs	branch_2
+        beq	branch_3
+        bne	branch_4
+        bmi	branch_5
+        bpl	branch_6
+        bvc	branch_7
+        bvs	branch_8
+
+branch_1:
+        lda	#$01
+        rts
+
+branch_2:
+        lda	#$02
+        rts
+
+branch_3:
+        lda	#$03
+        rts
+
+branch_4:
+        lda	#$04
+        rts
+
+branch_5:
+        lda	#$05
+        rts
+
+branch_6:
+        lda	#$06
+        rts
+
+branch_7:
+        lda	#$07
+        rts
+
+branch_8:
+        lda	#$08
+        rts
+
+; =============================================================================
+; ARITHMETIC AND LOGICAL OPERATIONS
+; =============================================================================
+
+arithmetic_test:
+; Arithmetic operations
+        adc	#$10
+        sbc	#$20
+        inc	temp_var
+        dec	counter
+    
+; Logical operations
+        and	#$f0
+        ora	#$0f
+        eor	#$ff
+    
+; Shift operations
+        asl	$00
+        lsr	$00
+        rol	$00
+        ror	$00
+    
+; Bit operations (testing case-insensitive highlighting)
+        bit	$2000
+        AND	$2001 ; Uppercase instruction
+        ora	$2002
+        LDA	#$42 ; Mixed case instruction
+
+; =============================================================================
+; STACK OPERATIONS
+; =============================================================================
+
+stack_test:
+; Push operations
+        pha
+        php
+    
+; Pull operations
+        plp
+        pla
+
+; =============================================================================
+; TRANSFER OPERATIONS
+; =============================================================================
+
+transfer_test:
+; Register transfers
+        tax
+        tay
+        txa
+        tya
+        tsx
+        txs
+    
+; C128 specific transfers
+        !if SYSTEM = 128 {
+            taz
+            tza
+            tab
+            tba
+        }
+
+; =============================================================================
+; COMPARISON OPERATIONS
+; =============================================================================
+
+comparison_test:
+; Compare operations
+        cmp	#$10
+        cpx	#$20
+        cpy	#$30
+    
+; C128 specific comparisons
+        !if SYSTEM = 128 {
+            cpz	#$40
+        }
+
+; =============================================================================
+; LOAD AND STORE OPERATIONS
+; =============================================================================
+
+load_store_test:
+; Load operations
+        lda	#$ff
+        ldx	#$00
+        ldy	#$01
+    
+; Store operations
+        sta	$2000
+        stx	$2001
+        sty	$2002
+    
+; C128 specific operations
+        !if SYSTEM = 128 {
+            ldz	#$02
+            stz	$2003
+        }
+
+; =============================================================================
+; SYSTEM OPERATIONS
+; =============================================================================
+
+system_test:
+; System operations
+        clc
+        sec
+        cli
+        sei
+        cld
+        sed
+        clv
+    
+; Break and return
+        brk
+        rti
+        rts
+
+; =============================================================================
+; END OF FILE
+; =============================================================================
+
+; End of program
+        !eof

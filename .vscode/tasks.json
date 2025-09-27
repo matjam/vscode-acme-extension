@@ -1,0 +1,37 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Assemble ACME File",
+            "type": "acme",
+            "file": "${file}",
+            "format": "prg",
+            "outputDir": "out",
+            "verbose": false,
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": "acme"
+        },
+        {
+            "label": "Build All ACME Files",
+            "type": "shell",
+            "command": "acme",
+            "args": [
+                "-v",
+                "-o",
+                "out/${fileBasenameNoExtension}.prg",
+                "${file}"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": "acme"
+        }
+    ]
+}

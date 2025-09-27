@@ -1,0 +1,13 @@
+Transfer X into A and AND with operand (unintended instruction)
+A $\leftarrow$ X \binand{} VALUE
+N+Z+
+This instruction loads the Accumulator Register with the binary AND of the
+X Register and the immediate mode argument.
+
+NOTE: This instruction is unstable on many 6502 processors, and should not be used.
+
+\subsubsection*{Side effects}
+\begin{itemize}
+\item The N flag will be set if the result is negative, i.e. has it's most significant bit set, otherwise it will be cleared.
+\item The Z flag will be set if the result is zero, otherwise it will be cleared.
+\end{itemize}

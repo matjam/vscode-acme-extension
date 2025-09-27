@@ -1,0 +1,13 @@
+Binary AND and Logical Shift Right (unintended instruction)
+A $\leftarrow$ A \binand{} M, C $\leftarrow$ A(0), A $\leftarrow$ A$\gg$1, A(7) $\leftarrow$ 0
+N+Z+C+M+
+This instruction shifts the Accumulator one bit right after
+performing a binary AND of the Accumulator and the immediate mode argument.
+Bit 7 will be set to zero, and the bit 0 will be shifted out into the Carry Flag
+
+\subsubsection*{Side effects}
+\begin{itemize}
+\item The N flag will be set if the result is negative, i.e. has it's most significant bit set, otherwise it will be cleared.
+\item The Z flag will be set if the result is zero, otherwise it will be cleared.
+\item The C flag will be set to bit 0 of the AND result, prior to being shifted.
+\end{itemize}

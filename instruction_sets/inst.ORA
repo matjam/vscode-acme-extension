@@ -1,0 +1,12 @@
+Binary OR
+A $\leftarrow$ A \binor{} M
+N+Z+
+This instruction performs a binary OR operation of the argument with the
+accumulator, and stores the result in the accumulator. Only bits that were
+already set in the accumulator, or that are set in the argument will be set
+in the accumulator on completion, or both.
+\subsubsection*{Side effects}
+\begin{itemize}
+\item The N flag will be set if the result is negative, i.e. has it's most significant bit set, otherwise it will be cleared.
+\item The Z flag will be set if the result is zero, otherwise it will be cleared.
+\end{itemize}
