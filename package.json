@@ -2,7 +2,7 @@
   "name": "acme-assembler",
   "displayName": "ACME Assembler",
   "description": "Syntax highlighting and formatting for ACME assembler",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "matjam",
   "repository": {
     "type": "git",
