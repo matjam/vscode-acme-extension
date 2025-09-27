@@ -51,29 +51,21 @@ A comprehensive VS Code extension for ACME assembler development, providing synt
 
 ## Installation
 
-### From Source (Development)
-1. Clone this repository
-2. Run `npm install` to install dependencies
-3. Run `npm run compile` to build the extension
-4. Press `F5` in VS Code to test the extension in Extension Development Host
+### Quick Install (Recommended)
+Use the interactive installer to symlink this repo into VS Code and/or Cursor:
 
-### Manual Installation
-1. Clone this repository to your VS Code extensions directory:
-   ```bash
-   # On Linux/macOS
-   git clone https://github.com/matjam/vscode-acme-extension.git ~/.vscode/extensions/matjam.acme-assembler-0.1.0
-   
-   # On Windows
-   git clone https://github.com/matjam/vscode-acme-extension.git %USERPROFILE%\.vscode\extensions\matjam.acme-assembler-0.1.0
-   ```
-2. Navigate to the extension directory and install dependencies:
-   ```bash
-   cd ~/.vscode/extensions/matjam.acme-assembler-0.1.0
-   npm install
-   npm run compile
-   ```
-3. Restart VS Code
-4. The extension will be automatically loaded
+```bash
+chmod +x install.sh
+./install.sh
+```
+
+Flags:
+- `--vscode` install for VS Code only
+- `--cursor` install for Cursor only
+- `--both` install for both
+- `-y`, `--yes` run non-interactively and overwrite existing links
+
+Restart the IDE(s) after installation.
 
 ### From VSIX (when published)
 1. Download the `.vsix` file from releases
