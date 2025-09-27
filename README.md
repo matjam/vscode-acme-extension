@@ -1,108 +1,192 @@
 # ACME Assembler VS Code Extension
 
-This VS Code extension provides comprehensive support for ACME assembler development, including syntax highlighting, formatting, and direct integration with the ACME assembler.
+A comprehensive VS Code extension for ACME assembler development, providing syntax highlighting, code formatting, hover documentation, and seamless integration with the ACME assembler and MEGA65 development tools.
 
 ## Features
 
-- **Syntax Highlighting**: Full syntax highlighting for ACME assembler directives, instructions, labels, and comments
-- **Code Formatting**: Automatic formatting for assembly code with proper indentation and spacing
-- **Language Support**: Recognizes `.a` and `.asm` files as ACME assembler
-- **ACME Integration**: Direct integration with ACME assembler binary
-- **Build Commands**: Assemble files and build projects with a single command
-- **Task Provider**: VS Code task integration for automated builds
-- **Error Parsing**: Parse and display ACME assembler errors in the Problems panel
-- **Auto-assemble**: Optional automatic assembly on file save
+### 🎨 Syntax Highlighting
+- **Complete ACME directive support**: `!cpu`, `!to`, `!addr`, `!8`, `!16`, `!by`, `!pet`, `!src`, `!if`, `!macro`, and more
+- **6502/65C02 instruction set**: Full highlighting for all instructions and addressing modes
+- **Smart number highlighting**: Hexadecimal (`$1234`), binary (`%1010`), decimal, and character literals
+- **Label support**: Global labels, local labels (`+`, `-`), and proper scoping
+- **Comment and string highlighting**: Line comments (`;`) and string literals with escape sequences
 
-## Supported Syntax
+### 📝 Code Formatting
+- **Automatic formatting**: Clean up whitespace, align instructions, and format directives
+- **Smart indentation**: Proper indentation for conditional blocks and macros
+- **Consistent spacing**: Aligns labels, instructions, and operands for readability
+- **Format on save**: Optional automatic formatting when saving files
 
-- ACME directives (e.g., `!cpu`, `!to`, `!8`, `!pet`, `!addr`, `!src`, `!by`)
-- Assembly instructions (6502/65C02 instruction set)
-- Labels and comments
-- Hexadecimal (`$`), binary (`%`), and decimal numbers
-- String literals
-- Addressing modes and registers
+### 📚 Hover Documentation
+- **Instruction reference**: Hover over any 6502/65C02 instruction for detailed documentation
+- **Comprehensive details**: Operation descriptions, flag effects, addressing modes, and cycle counts
+- **Visual flag display**: Interactive flag status with reverse highlighting for set flags
+- **Addressing mode tables**: Complete addressing mode information with syntax and opcodes
+- **Side effects**: Detailed information about instruction side effects
+- **Multi-processor support**: Documentation for 6502, 4510, and 45GS02 processors
+
+### 🔧 ACME Integration
+- **Direct assembler integration**: Seamless integration with ACME assembler binary
+- **Multiple output formats**: Support for PRG, CBM, BIN, and D64 formats
+- **Error parsing**: Automatic error detection and display in Problems panel
+- **Auto-assemble**: Optional background assembly on file save
+- **Build commands**: Assemble individual files or entire projects
+
+### 🎮 MEGA65 Development
+- **Emulator integration**: Run programs directly in [xmega65 emulator](https://github.com/lgblgblgb/xemu)
+- **Hardware support**: Load programs to MEGA65 via etherload command
+- **Flexible execution**: Choose between emulator or hardware execution modes
+- **Automatic binary detection**: Finds emulator and etherload binaries in PATH
+
+### ⚙️ VS Code Integration
+- **Task provider**: VS Code task integration for automated builds
+- **Context menus**: Right-click support for ACME files
+- **Command palette**: Easy access to all ACME commands
+- **Output channel**: Dedicated ACME assembler output channel
+- **Problem matcher**: Automatic error parsing and display
 
 ## Installation
 
-1. Copy this extension to your VS Code extensions directory
+### From Source
+1. Clone this repository
 2. Run `npm install` to install dependencies
 3. Run `npm run compile` to build the extension
-4. Press F5 to run the extension in a new Extension Development Host window
+4. Press `F5` in VS Code to test the extension
+
+### From VSIX (when published)
+1. Download the `.vsix` file from releases
+2. Install via VS Code: `Ctrl+Shift+P` → "Extensions: Install from VSIX"
+3. Select the downloaded `.vsix` file
 
 ## Configuration
 
 The extension provides several configuration options accessible through VS Code settings:
 
-- `acme.binaryPath`: Path to the ACME assembler binary (default: "acme")
-- `acme.outputDirectory`: Directory for output files (default: "out")
-- `acme.defaultFormat`: Default output format - prg, cbm, bin, or d64 (default: "prg")
-- `acme.verboseOutput`: Enable verbose output from ACME (default: false)
-- `acme.autoAssemble`: Automatically assemble on save (runs silently in background, default: false)
-- `acme.emulatorBinary`: Path to the MEGA65 emulator binary (default: "xmega65"). Get it from https://github.com/lgblgblgb/xemu
-- `acme.runMode`: How to run assembled programs - "emulator" uses xmega65, "etherload" uses MEGA65 etherload command (default: "emulator")
-- `acme.etherloadCommand`: Command to run programs on MEGA65 via etherload (default: "etherload")
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `acme.binaryPath` | string | `"acme"` | Path to the ACME assembler binary |
+| `acme.outputDirectory` | string | `"out"` | Directory for output files |
+| `acme.defaultFormat` | string | `"prg"` | Default output format (prg, cbm, bin, d64) |
+| `acme.verboseOutput` | boolean | `false` | Enable verbose output from ACME |
+| `acme.autoAssemble` | boolean | `false` | Automatically assemble on save |
+| `acme.emulatorBinary` | string | `"xmega65"` | Path to MEGA65 emulator binary |
+| `acme.runMode` | string | `"emulator"` | Run mode: "emulator" or "etherload" |
+| `acme.etherloadCommand` | string | `"etherload"` | Command for MEGA65 etherload |
+| `acme.showTerminalOnRun` | boolean | `false` | Show terminal when running programs |
 
 ## Usage
 
 ### Basic Usage
-Open any `.a` or `.asm` file and the extension will automatically provide syntax highlighting and formatting support.
+Open any `.a` or `.asm` file and the extension will automatically provide:
+- Syntax highlighting
+- Code formatting support
+- Hover documentation for instructions
+- Context menu options
 
 ### Assembling Files
-- **Right-click** on an ACME file in the editor and select "Assemble File" from the context menu
-- **Right-click** on an ACME file in the explorer and select "Build Project" to assemble all ACME files
-- Use **Ctrl+Shift+P** and search for "ACME" to access all commands
-- Use **Ctrl+Shift+B** to run the default build task
 
-**Note**: The extension respects the `!to` directive in your ACME files. If your file contains a `!to` directive, the extension will not override it with the `-o` flag, avoiding the "Output file name already chosen" warning.
+#### Via Context Menu
+- **Right-click** on an ACME file in the editor
+- Select from available ACME commands:
+  - "Assemble File" - Assemble the current file
+  - "Assemble and Run" - Assemble and run using configured mode
+  - "Assemble and Run on Emulator" - Run on MEGA65 emulator
+  - "Assemble and Run on MEGA65" - Run on MEGA65 hardware
+
+#### Via Command Palette
+- Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on Mac)
+- Search for "ACME" to see all available commands
+- Select the desired command
+
+#### Via Keyboard Shortcuts
+- `Ctrl+Shift+B` - Run default build task
+- `Shift+Alt+F` - Format current document
 
 ### Available Commands
-- `ACME: Assemble File` - Assemble the current file
-- `ACME: Assemble and Run` - Assemble the current file and run using configured run mode
-- `ACME: Assemble and Run on Emulator` - Assemble the current file and run on MEGA65 emulator
-- `ACME: Assemble and Run on MEGA65` - Assemble the current file and run on MEGA65 via etherload
-- `ACME: Build Project` - Assemble all ACME files in the workspace
-- `ACME: Show Output` - Show the ACME assembler output channel
 
-**Auto-assemble on Save**: When enabled, the extension will automatically assemble your ACME files when you save them. This runs silently in the background without opening terminals or showing notifications. Assembly errors and warnings are automatically displayed in the Problems panel, and you can view detailed output in the ACME Assembler output channel.
+| Command | Description |
+|---------|-------------|
+| `ACME: Assemble File` | Assemble the current file |
+| `ACME: Assemble and Run` | Assemble and run using configured run mode |
+| `ACME: Assemble and Run on Emulator` | Assemble and run on MEGA65 emulator |
+| `ACME: Assemble and Run on MEGA65` | Assemble and run on MEGA65 hardware |
+| `ACME: Build Project` | Assemble all ACME files in workspace |
+| `ACME: Show Output` | Show ACME assembler output channel |
 
-### MEGA65 Integration
+### Hover Documentation
 
-The extension provides seamless integration with MEGA65 development:
+Hover over any 6502/65C02 instruction to see:
+- **Instruction name** and short description
+- **Operation** details and CPU-specific operations
+- **Flags affected** with visual status indicators
+- **Side effects** in a bulleted list
+- **Addressing modes** in a detailed table with:
+  - Mode name and assembly syntax
+  - Opcode and cycle count
+  - Processor compatibility
+  - Cycle modifier explanations
 
-- **Emulator Support**: Run your assembled programs directly in the [xmega65 emulator](https://github.com/lgblgblgb/xemu) with proper MEGA65 mode settings
-- **Etherload Support**: Load programs directly to your MEGA65 hardware via etherload command
-- **Flexible Configuration**: Choose between emulator or hardware execution modes
-- **Automatic Binary Detection**: Finds emulator and etherload binaries in your PATH automatically
+### Auto-Assemble on Save
 
-**Emulator Command**: `xmega65 -besure -prgmode 65 -prg <prg-file>`
-**Etherload Command**: `etherload -r <prg-file>` (configurable)
+When enabled, the extension automatically assembles ACME files when saved:
+- Runs silently in the background
+- Displays errors in Problems panel
+- Shows detailed output in ACME output channel
+- Clears errors when compilation succeeds
 
-### Tasks
-The extension provides VS Code tasks for building ACME projects. You can:
-- Run tasks from the Command Palette (Ctrl+Shift+P → "Tasks: Run Task")
-- Use Ctrl+Shift+B for the default build task
-- Create custom tasks in `.vscode/tasks.json`
+## File Support
 
-## Formatting
+The extension recognizes these file types:
+- `.a` - Primary ACME assembler files
+- `.asm` - Generic assembly files
 
-The extension provides automatic formatting that:
-- Removes trailing whitespace
-- Properly formats directives
-- Aligns labels and instructions
-- Maintains proper spacing for operands
-- Handles indentation for code blocks
+## Supported Processors
 
-Use `Shift+Alt+F` to format the current document or selection.
+- **6502** - Classic 8-bit processor
+- **4510** - Enhanced 6502 variant
+- **45GS02** - MEGA65 processor
 
 ## Error Handling
 
-The extension includes comprehensive error handling:
+Comprehensive error handling includes:
+- **Problems panel integration** - Errors and warnings displayed with line numbers
+- **Error navigation** - Click errors to jump to problematic lines
+- **Auto-clear** - Errors cleared when compilation succeeds
+- **Multiple formats** - Supports both ACME error and warning formats
 
-- **Problems Panel Integration**: ACME assembler errors and warnings are automatically parsed and displayed in the Problems panel with proper line numbers and error messages
-- **Auto-assemble Error Display**: When auto-assemble on save is enabled, compilation errors are shown in the Problems panel without interrupting your workflow
-- **Error Navigation**: Click on errors in the Problems panel to jump directly to the problematic line in your source code
-- **Error Clearing**: Errors are automatically cleared when compilation succeeds
+## Development
 
-The extension parses both ACME error and warning formats:
-- `Error - File file.a, line 12 (Zone <untitled>): Message`
-- `Warning - File file.a, line 12 (Zone <untitled>): Message`
+### Building
+```bash
+npm install
+npm run compile
+```
+
+### Watching for Changes
+```bash
+npm run watch
+```
+
+### Testing
+Press `F5` in VS Code to launch Extension Development Host and test the extension.
+
+## Requirements
+
+- VS Code 1.74.0 or higher
+- Node.js 16.x or higher
+- TypeScript 4.9.4 or higher
+- ACME assembler binary (for assembly features)
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Acknowledgments
+
+- ACME assembler by Marco Baye
+- MEGA65 project team
+- VS Code team for the excellent extension API
