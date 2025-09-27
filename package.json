@@ -4,6 +4,10 @@
   "description": "Syntax highlighting and formatting for ACME assembler",
   "version": "0.1.0",
   "publisher": "matjam",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/matjam/vscode-acme-extension"
+  },
   "icon": "acme_extension.png",
   "engines": {
     "vscode": "^1.74.0"
