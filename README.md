@@ -51,7 +51,12 @@ A comprehensive VS Code extension for ACME assembler development, providing synt
 
 ## Installation
 
-### Quick Install (Recommended)
+### From VSIX (Recommended)
+1. Download the `.vsix` from the [GitHub Releases](https://github.com/matjam/vscode-acme-extension/releases)
+2. Install via VS Code: `Ctrl+Shift+P` → "Extensions: Install from VSIX"
+3. Select the downloaded `.vsix` file
+
+### Install script (for development)
 Use the interactive installer to symlink this repo into VS Code and/or Cursor:
 
 ```bash
@@ -67,10 +72,6 @@ Flags:
 
 Restart the IDE(s) after installation.
 
-### From VSIX (when published)
-1. Download the `.vsix` file from releases
-2. Install via VS Code: `Ctrl+Shift+P` → "Extensions: Install from VSIX"
-3. Select the downloaded `.vsix` file
 
 ## Configuration
 
