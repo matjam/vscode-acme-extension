@@ -6,7 +6,7 @@ A comprehensive VS Code extension for ACME assembler development, providing synt
 
 ### 🎨 Syntax Highlighting
 - **Complete ACME directive support**: `!cpu`, `!to`, `!addr`, `!8`, `!16`, `!by`, `!pet`, `!src`, `!if`, `!macro`, and more
-- **6502/65C02 instruction set**: Full highlighting for all instructions and addressing modes
+- **Multi-processor instruction set**: Full highlighting for 6502, 4510, and 45GS02 instructions and addressing modes
 - **Smart number highlighting**: Hexadecimal (`$1234`), binary (`%1010`), decimal, and character literals
 - **Label support**: Global labels, local labels (`+`, `-`), and proper scoping
 - **Comment and string highlighting**: Line comments (`;`) and string literals with escape sequences
@@ -18,12 +18,12 @@ A comprehensive VS Code extension for ACME assembler development, providing synt
 - **Format on save**: Optional automatic formatting when saving files
 
 ### 📚 Hover Documentation
-- **Instruction reference**: Hover over any 6502/65C02 instruction for detailed documentation
+- **Multi-processor instruction reference**: Hover over any 6502, 4510, or 45GS02 instruction for detailed documentation
 - **Comprehensive details**: Operation descriptions, flag effects, addressing modes, and cycle counts
 - **Visual flag display**: Interactive flag status with reverse highlighting for set flags
 - **Addressing mode tables**: Complete addressing mode information with syntax and opcodes
 - **Side effects**: Detailed information about instruction side effects
-- **Multi-processor support**: Documentation for 6502, 4510, and 45GS02 processors
+- **Processor-specific operations**: CPU-specific operation details for 6502, 4510, and 45GS02
 
 ### 🔧 ACME Integration
 - **Direct assembler integration**: Seamless integration with ACME assembler binary
@@ -33,7 +33,9 @@ A comprehensive VS Code extension for ACME assembler development, providing synt
 - **Build commands**: Assemble individual files or entire projects
 
 ### 🎮 MEGA65 Development
-- **Emulator integration**: Run programs directly in [xmega65 emulator](https://github.com/lgblgblgb/xemu)
+- **MEGA65 emulator integration**: Run programs directly in [xmega65 emulator](https://github.com/lgblgblgb/xemu)
+- **45GS02 processor support**: Full support for MEGA65's 45GS02 processor with enhanced instruction set
+- **4510 processor support**: Complete support for the 4510 processor variant
 - **Hardware support**: Load programs to MEGA65 via etherload command
 - **Flexible execution**: Choose between emulator or hardware execution modes
 - **Automatic binary detection**: Finds emulator and etherload binaries in PATH
@@ -115,7 +117,7 @@ Open any `.a` or `.asm` file and the extension will automatically provide:
 
 ### Hover Documentation
 
-Hover over any 6502/65C02 instruction to see:
+Hover over any 6502, 4510, or 45GS02 instruction to see:
 - **Instruction name** and short description
 - **Operation** details and CPU-specific operations
 - **Flags affected** with visual status indicators
@@ -142,9 +144,18 @@ The extension recognizes these file types:
 
 ## Supported Processors
 
-- **6502** - Classic 8-bit processor
-- **4510** - Enhanced 6502 variant
-- **45GS02** - MEGA65 processor
+The extension provides comprehensive support for three processor architectures:
+
+- **6502** - Classic 8-bit processor with full instruction set support
+- **4510** - Enhanced 6502 variant with additional instructions and addressing modes
+- **45GS02** - MEGA65's advanced processor with extended instruction set and enhanced capabilities
+
+Each processor is fully supported with:
+- Complete instruction set highlighting
+- Comprehensive hover documentation
+- Processor-specific operation details
+- Addressing mode support
+- Cycle count information
 
 ## Error Handling
 
