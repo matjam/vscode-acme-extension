@@ -25,6 +25,8 @@ A comprehensive VS Code extension for ACME assembler development, providing synt
 - **Side effects**: Detailed information about instruction side effects
 - **Processor-specific operations**: CPU-specific operation details for 6502, 4510, and 45GS02
 
+<img width="1502" height="702" alt="image" src="https://github.com/user-attachments/assets/1a35c068-e265-493a-b286-61d104c771e1" />
+
 ### 🔧 ACME Integration
 - **Direct assembler integration**: Seamless integration with ACME assembler binary
 - **Multiple output formats**: Support for PRG, CBM, BIN, and D64 formats
