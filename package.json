@@ -4,6 +4,7 @@
   "description": "Syntax highlighting and formatting for ACME assembler",
   "version": "0.1.0",
   "publisher": "matjam",
+  "icon": "acme_extension.png",
   "engines": {
     "vscode": "^1.74.0"
   },
