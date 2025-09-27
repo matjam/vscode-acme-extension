@@ -9,6 +9,17 @@
     "url": "https://github.com/matjam/vscode-acme-extension"
   },
   "icon": "acme_extension.png",
+  "files": [
+    "out/**",
+    "languages/**",
+    "syntaxes/**",
+    "instruction_sets/**",
+    "docs/**",
+    "acme_extension.png",
+    "README.md",
+    "LICENSE",
+    "package.json"
+  ],
   "engines": {
     "vscode": "^1.74.0"
   },
