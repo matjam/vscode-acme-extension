@@ -97,6 +97,18 @@ bit_patterns:
     !8 %11110000
     !8 %00001111
 
+; in-line labels, useful for symbols that you use in a block
+    somebytes	!byte	$01, $02, $03
+    somebytes2: !byte   $01, $02, $03
+    other	lda	$02
+    otherthing: lda $02
+
+bloop
+    lda	$02
+
+bloop2:
+    lda	$02
+
 ; =============================================================================
 ; MAIN PROGRAM
 ; =============================================================================
@@ -318,6 +330,7 @@ sprite_irq:
     
     rts
 
+
 ; =============================================================================
 ; DATA TABLES
 ; =============================================================================
@@ -346,20 +359,19 @@ cos_table:
         sta	$d020
         sta	$d021
     } else {
-; C128 specific code
-            lda	#$00
-            sta	$d020
-            sta	$d021
-            lda	#$00
-            sta	mmu_cr
-        }
+        lda	#$00
+        sta	$d020
+        sta	$d021
+        lda	#$00
+        sta	mmu_cr
+    }
 
 ; Debug code
-        !if DEBUG {
+    !if DEBUG {
 ; Debug output
-            lda	#$01
-            sta	$d020
-        }
+        lda	#$01
+        sta	$d020
+    }
 
 ; =============================================================================
 ; COMPLEX EXPRESSIONS
@@ -368,25 +380,25 @@ cos_table:
 ; Complex addressing modes
 complex_addressing:
 ; Indirect addressing
-        lda	($10, x)
-        sta	($20), y
+    lda	($10, x)
+    sta	($20), y
     
 ; Absolute addressing
-        lda	$1234
-        sta	$5678
+    lda	$1234
+    sta	$5678
     
 ; Indexed addressing
-        lda	$1000, x
-        sta	$2000, y
+    lda	$1000, x
+    sta	$2000, y
     
 ; Zero page addressing
-        lda	$10
-        sta	$20
+    lda	$10
+    sta	$20
     
 ; Immediate addressing
-        lda	#$ff
-        ldx	#$00
-        ldy	#$01
+    lda	#$ff
+    ldx	#$00
+    ldy	#$01
 
 ; =============================================================================
 ; BRANCH INSTRUCTIONS
@@ -394,46 +406,46 @@ complex_addressing:
 
 branch_test:
 ; Conditional branches
-        bcc	branch_1
-        bcs	branch_2
-        beq	branch_3
-        bne	branch_4
-        bmi	branch_5
-        bpl	branch_6
-        bvc	branch_7
-        bvs	branch_8
+    bcc	branch_1
+    bcs	branch_2
+    beq	branch_3
+    bne	branch_4
+    bmi	branch_5
+    bpl	branch_6
+    bvc	branch_7
+    bvs	branch_8
 
 branch_1:
-        lda	#$01
-        rts
+    lda	#$01
+    rts
 
 branch_2:
-        lda	#$02
-        rts
+    lda	#$02
+    rts
 
 branch_3:
-        lda	#$03
-        rts
+    lda	#$03
+    rts
 
 branch_4:
-        lda	#$04
-        rts
+    lda	#$04
+    rts
 
 branch_5:
-        lda	#$05
-        rts
+    lda	#$05
+    rts
 
 branch_6:
-        lda	#$06
-        rts
+    lda	#$06
+    rts
 
 branch_7:
-        lda	#$07
-        rts
+    lda	#$07
+    rts
 
 branch_8:
-        lda	#$08
-        rts
+    lda	#$08
+    rts
 
 ; =============================================================================
 ; ARITHMETIC AND LOGICAL OPERATIONS
@@ -441,27 +453,27 @@ branch_8:
 
 arithmetic_test:
 ; Arithmetic operations
-        adc	#$10
-        sbc	#$20
-        inc	temp_var
-        dec	counter
+    adc	#$10
+    sbc	#$20
+    inc	temp_var
+    dec	counter
     
 ; Logical operations
-        and	#$f0
-        ora	#$0f
-        eor	#$ff
+    and	#$f0
+    ora	#$0f
+    eor	#$ff
     
 ; Shift operations
-        asl	$00
-        lsr	$00
-        rol	$00
-        ror	$00
+    asl	$00
+    lsr	$00
+    rol	$00
+    ror	$00
     
 ; Bit operations (testing case-insensitive highlighting)
-        bit	$2000
-        AND	$2001 ; Uppercase instruction
-        ora	$2002
-        LDA	#$42 ; Mixed case instruction
+    bit	$2000
+    AND	$2001 ; Uppercase instruction
+    ora	$2002
+    LDA	#$42 ; Mixed case instruction
 
 ; =============================================================================
 ; STACK OPERATIONS
@@ -469,12 +481,12 @@ arithmetic_test:
 
 stack_test:
 ; Push operations
-        pha
-        php
+    pha
+    php
     
 ; Pull operations
-        plp
-        pla
+    plp
+    pla
 
 ; =============================================================================
 ; TRANSFER OPERATIONS
@@ -482,20 +494,20 @@ stack_test:
 
 transfer_test:
 ; Register transfers
-        tax
-        tay
-        txa
-        tya
-        tsx
-        txs
+    tax
+    tay
+    txa
+    tya
+    tsx
+    txs
     
 ; C128 specific transfers
-        !if SYSTEM = 128 {
-            taz
-            tza
-            tab
-            tba
-        }
+    !if SYSTEM = 128 {
+        taz
+        tza
+        tab
+        tba
+    }
 
 ; =============================================================================
 ; COMPARISON OPERATIONS
@@ -503,14 +515,14 @@ transfer_test:
 
 comparison_test:
 ; Compare operations
-        cmp	#$10
-        cpx	#$20
-        cpy	#$30
+    cmp	#$10
+    cpx	#$20
+    cpy	#$30
     
 ; C128 specific comparisons
-        !if SYSTEM = 128 {
-            cpz	#$40
-        }
+    !if SYSTEM = 128 {
+        cpz	#$40
+    }
 
 ; =============================================================================
 ; LOAD AND STORE OPERATIONS
@@ -518,20 +530,20 @@ comparison_test:
 
 load_store_test:
 ; Load operations
-        lda	#$ff
-        ldx	#$00
-        ldy	#$01
+    lda	#$ff
+    ldx	#$00
+    ldy	#$01
     
 ; Store operations
-        sta	$2000
-        stx	$2001
-        sty	$2002
+    sta	$2000
+    stx	$2001
+    sty	$2002
     
 ; C128 specific operations
-        !if SYSTEM = 128 {
-            ldz	#$02
-            stz	$2003
-        }
+    !if SYSTEM = 128 {
+        ldz	#$02
+        stz	$2003
+    }
 
 ; =============================================================================
 ; SYSTEM OPERATIONS
@@ -539,22 +551,22 @@ load_store_test:
 
 system_test:
 ; System operations
-        clc
-        sec
-        cli
-        sei
-        cld
-        sed
-        clv
+    clc
+    sec
+    cli
+    sei
+    cld
+    sed
+    clv
     
 ; Break and return
-        brk
-        rti
-        rts
+    brk
+    rti
+    rts
 
 ; =============================================================================
 ; END OF FILE
 ; =============================================================================
 
 ; End of program
-        !eof
+    !eof

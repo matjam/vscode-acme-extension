@@ -36,26 +36,26 @@ export class AcmeFormatter {
     formatDocument(document: string, options: FormattingOptions): string {
         const lines = document.split('\n');
         const indentString = options.insertSpaces ? ' '.repeat(options.tabSize) : '\t';
-        
+
         let indentLevel = 0;
         const formattedLines: string[] = [];
-        
+
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
             const trimmed = line.trim();
-            
+
             // Handle standalone comments - move to leftmost column
             if (trimmed.startsWith(';') || trimmed.startsWith('//')) {
                 formattedLines.push(trimmed);
                 // Comments don't affect indentation level
                 continue;
             }
-            
+
             // Handle inline brace expressions - split them across multiple lines
             if (this.hasInlineBraces(trimmed)) {
                 const splitLines = this.splitInlineBraces(trimmed, indentLevel, indentString);
                 formattedLines.push(...splitLines);
-                
+
                 // Simulate the brace level changes that would happen if we processed
                 // each split line individually
                 for (const splitLine of splitLines) {
@@ -69,19 +69,36 @@ export class AcmeFormatter {
             const labelInstructionMatch = trimmed.match(/^([a-zA-Z_@][a-zA-Z0-9_@]*|[+\-]+)\s+(.+)$/);
             if (labelInstructionMatch) {
                 const [, potentialLabel, instruction] = labelInstructionMatch;
-                
+
                 // Check if the first word is actually a label (not an instruction or assignment)
                 if (this.isLabel(potentialLabel) && !this.isInstruction(potentialLabel) && !trimmed.includes('=')) {
-                    // Add label on its own line (no indentation)
-                    formattedLines.push(potentialLabel);
-                    
-                    // Format and add instruction on next line with proper indentation
-                    const formattedInstruction = this.formatInstruction(instruction, options);
-                    const indentedInstruction = indentString.repeat(Math.max(1, indentLevel)) + formattedInstruction;
-                    formattedLines.push(indentedInstruction);
-                    
-                    // Calculate indentation for next line (based on the instruction)
-                    indentLevel = this.calculateNextIndentLevel(instruction, indentLevel);
+                    // Check if it's a colon label (needs to be split) or inline label (stays together)
+                    if (this.isColonLabel(potentialLabel)) {
+                        // Add label on its own line (no indentation)
+                        formattedLines.push(potentialLabel);
+
+                        // Format and add instruction on next line with proper indentation
+                        const formattedInstruction = this.formatInstruction(instruction, options);
+                        const indentedInstruction = indentString.repeat(Math.max(1, indentLevel)) + formattedInstruction;
+                        formattedLines.push(indentedInstruction);
+
+                        // Calculate indentation for next line (based on the instruction)
+                        indentLevel = this.calculateNextIndentLevel(instruction, indentLevel);
+                    } else if (this.isInlineLabel(potentialLabel)) {
+                        // Inline label: format as a single line with proper indentation
+                        const formattedInstruction = this.formatInstruction(instruction, options);
+                        const fullLine = `${potentialLabel}\t${formattedInstruction}`;
+                        const indentedLine = indentString.repeat(indentLevel) + fullLine;
+                        formattedLines.push(indentedLine);
+
+                        // Calculate indentation for next line (based on the instruction)
+                        indentLevel = this.calculateNextIndentLevel(instruction, indentLevel);
+                    } else {
+                        // Fallback: treat as regular line
+                        const formattedLine = this.formatLine(line, options, indentLevel, indentString);
+                        formattedLines.push(formattedLine);
+                        indentLevel = this.calculateNextIndentLevel(line, indentLevel);
+                    }
                 } else {
                     // It's not a label+instruction split, format normally
                     const formattedLine = this.formatLine(line, options, indentLevel, indentString);
@@ -89,20 +106,28 @@ export class AcmeFormatter {
                     indentLevel = this.calculateNextIndentLevel(line, indentLevel);
                 }
             } else {
-                const formattedLine = this.formatLine(line, options, indentLevel, indentString);
-                formattedLines.push(formattedLine);
-                
-                // Calculate indentation for next line
-                indentLevel = this.calculateNextIndentLevel(line, indentLevel);
+                // Check if this is a standalone inline label (no instruction on same line)
+                if (this.isInlineLabel(trimmed)) {
+                    // Standalone inline label: align to leftmost column (no indentation)
+                    const strippedLabel = trimmed.replace(/^[\s\t]+/, '');
+                    formattedLines.push(strippedLabel);
+                    // Don't change indentation level for standalone inline labels
+                } else {
+                    const formattedLine = this.formatLine(line, options, indentLevel, indentString);
+                    formattedLines.push(formattedLine);
+
+                    // Calculate indentation for next line
+                    indentLevel = this.calculateNextIndentLevel(line, indentLevel);
+                }
             }
         }
-        
+
         return formattedLines.join('\n');
     }
 
     formatLine(line: string, options: FormattingOptions, indentLevel: number, indentString: string): string {
         const trimmed = line.trim();
-        
+
         // Handle empty lines and comments
         if (trimmed === '' || trimmed.startsWith(';') || trimmed.startsWith('//')) {
             // For standalone comments, remove leading whitespace and move to leftmost column
@@ -135,33 +160,38 @@ export class AcmeFormatter {
         }
 
         // Apply indentation after formatting based on the rules:
-        // - Labels: NEVER indented
+        // - Colon labels: NEVER indented
+        // - Inline labels: indented like instructions
         // - Conditional directives (!if, !ifndef, etc.): indented when inside blocks
         // - Other directives: indented based on context (preamble vs blocks)
         // - Instructions and macro calls: always indented at least one level, more if in blocks
         // - Closing braces: indented at the same level as the line that opened the block
-        if (result && !this.isLabel(trimmed) && !this.isOpeningBrace(trimmed)) {
+        // - } else { should be indented at the same level as the if statement
+        if (result && !this.isColonLabel(trimmed) && !this.isOpeningBrace(trimmed)) {
             if (trimmed === '@entry') {
                 console.log('@entry is NOT being indented (correct)');
             }
             // Strip any existing indentation before applying new indentation
             const strippedResult = result.replace(/^[\s\t]+/, '');
-            
+
             if (this.isClosingBrace(trimmed)) {
                 // Closing braces should be indented at the same level as the line that opened the block
                 result = indentString.repeat(Math.max(0, indentLevel - 1)) + strippedResult;
+            } else if (trimmed.startsWith('} else {')) {
+                // } else { should be indented at the same level as the if statement
+                result = indentString.repeat(Math.max(0, indentLevel - 1)) + strippedResult;
             } else {
                 // Instructions and assignments always get at least 1 level of indentation
-                const isInstructionOrAssignment = this.isInstruction(trimmed) || 
-                                                this.isPcDefinition(trimmed) || 
-                                                this.isSymbolDefinition(trimmed);
-                
+                const isInstructionOrAssignment = this.isInstruction(trimmed) ||
+                    this.isPcDefinition(trimmed) ||
+                    this.isSymbolDefinition(trimmed);
+
                 const minIndentLevel = isInstructionOrAssignment ? Math.max(1, indentLevel) : indentLevel;
                 result = indentString.repeat(minIndentLevel) + strippedResult;
             }
         } else {
-            // For labels, strip any existing indentation to ensure they're left-aligned
-            if (this.isLabel(trimmed)) {
+            // For colon labels, strip any existing indentation to ensure they're left-aligned
+            if (this.isColonLabel(trimmed)) {
                 result = result.replace(/^[\s\t]+/, '');
             }
         }
@@ -216,13 +246,13 @@ export class AcmeFormatter {
 
             // Determine if this line should be indented
             let instructionWithIndent = formattedInstruction;
-            if (!this.isLabel(instruction) && !this.isClosingBrace(instruction) && !this.isOpeningBrace(instruction)) {
+            if (!this.isColonLabel(instruction) && !this.isClosingBrace(instruction) && !this.isOpeningBrace(instruction)) {
                 // Strip any existing indentation before applying new indentation
                 const strippedInstruction = formattedInstruction.replace(/^[\s\t]+/, '');
                 // Instructions and assignments always get at least 1 level of indentation
-                const isInstructionOrAssignment = this.isInstruction(instruction) || 
-                                                this.isPcDefinition(instruction) || 
-                                                this.isSymbolDefinition(instruction);
+                const isInstructionOrAssignment = this.isInstruction(instruction) ||
+                    this.isPcDefinition(instruction) ||
+                    this.isSymbolDefinition(instruction);
                 const minIndentLevel = isInstructionOrAssignment ? Math.max(1, indentLevel) : indentLevel;
                 instructionWithIndent = indentString.repeat(minIndentLevel) + strippedInstruction;
             }
@@ -247,13 +277,13 @@ export class AcmeFormatter {
 
             if (!hasComment) {
                 // Determine if this line should be indented
-                if (!this.isLabel(instruction) && !this.isClosingBrace(instruction) && !this.isOpeningBrace(instruction)) {
+                if (!this.isColonLabel(instruction) && !this.isClosingBrace(instruction) && !this.isOpeningBrace(instruction)) {
                     // Strip any existing indentation before applying new indentation
                     const strippedInstruction = instruction.replace(/^[\s\t]+/, '');
                     // Instructions and assignments always get at least 1 level of indentation
-                    const isInstructionOrAssignment = this.isInstruction(instruction) || 
-                                                    this.isPcDefinition(instruction) || 
-                                                    this.isSymbolDefinition(instruction);
+                    const isInstructionOrAssignment = this.isInstruction(instruction) ||
+                        this.isPcDefinition(instruction) ||
+                        this.isSymbolDefinition(instruction);
                     const minIndentLevel = isInstructionOrAssignment ? Math.max(1, indentLevel) : indentLevel;
                     return indentString.repeat(minIndentLevel) + strippedInstruction;
                 } else {
@@ -267,23 +297,23 @@ export class AcmeFormatter {
                 const formattedComment = comment.trim();
                 return instruction + formattedComment;
             }
-            
+
             // Format comment with proper spacing
             const formattedComment = this.formatComment(comment);
-            
+
             // Determine if this line should be indented
             let instructionWithIndent = instruction;
-            if (!this.isLabel(instruction) && !this.isClosingBrace(instruction) && !this.isOpeningBrace(instruction)) {
+            if (!this.isColonLabel(instruction) && !this.isClosingBrace(instruction) && !this.isOpeningBrace(instruction)) {
                 // Strip any existing indentation before applying new indentation
                 const strippedInstruction = instruction.replace(/^[\s\t]+/, '');
                 // Instructions and assignments always get at least 1 level of indentation
-                const isInstructionOrAssignment = this.isInstruction(instruction) || 
-                                                this.isPcDefinition(instruction) || 
-                                                this.isSymbolDefinition(instruction);
+                const isInstructionOrAssignment = this.isInstruction(instruction) ||
+                    this.isPcDefinition(instruction) ||
+                    this.isSymbolDefinition(instruction);
                 const minIndentLevel = isInstructionOrAssignment ? Math.max(1, indentLevel) : indentLevel;
                 instructionWithIndent = indentString.repeat(minIndentLevel) + strippedInstruction;
             }
-            
+
             const padding = ' '.repeat(Math.max(1, maxInstructionLength - instructionWithIndent.length + 1));
 
             return instructionWithIndent + padding + formattedComment;
@@ -292,7 +322,12 @@ export class AcmeFormatter {
 
     calculateNextIndentLevel(line: string, currentLevel: number): number {
         const trimmed = line.trim();
-        
+
+        // Special case for } else { - should not increase indentation for next line
+        if (trimmed.startsWith('} else {')) {
+            return currentLevel;
+        }
+
         // If this line has an opening brace, increase indentation for next line
         if (this.hasOpeningBrace(trimmed)) {
             return currentLevel + 1;
@@ -303,9 +338,9 @@ export class AcmeFormatter {
             return Math.max(0, currentLevel - 1);
         }
 
-        // If this line is a label, set indentation to at least 1 for following code
-        // This makes labels stand out by indenting the code that follows them
-        if (this.isLabel(trimmed)) {
+        // If this line is a colon label, set indentation to at least 1 for following code
+        // This makes colon labels stand out by indenting the code that follows them
+        if (this.isColonLabel(trimmed)) {
             return Math.max(1, currentLevel);
         }
 
@@ -317,13 +352,13 @@ export class AcmeFormatter {
         // Directives should maintain their original spacing, just clean up whitespace
         const trimmed = line.trim();
         const parts = trimmed.split(/\s+/);
-        
+
         if (parts.length >= 2) {
             const directive = parts[0];
             const rest = parts.slice(1).join(' ');
             return `${directive} ${rest}`;
         }
-        
+
         return trimmed;
     }
 
@@ -331,13 +366,13 @@ export class AcmeFormatter {
         // Data definitions should be formatted with proper spacing
         const trimmed = line.trim();
         const parts = trimmed.split(/\s+/);
-        
+
         if (parts.length >= 2) {
             const directive = parts[0];
             const rest = parts.slice(1).join(' ');
             return `${directive}\t${rest}`;
         }
-        
+
         return trimmed;
     }
 
@@ -345,13 +380,13 @@ export class AcmeFormatter {
         // Instructions should be formatted with proper spacing
         const trimmed = line.trim();
         const parts = trimmed.split(/\s+/);
-        
+
         if (parts.length >= 2) {
             const mnemonic = parts[0];
             const operands = parts.slice(1).join(' ');
             return `${mnemonic}\t${operands}`;
         }
-        
+
         return trimmed;
     }
 
@@ -359,13 +394,13 @@ export class AcmeFormatter {
         // Format instruction without indentation
         const trimmed = instruction.trim();
         const parts = trimmed.split(/\s+/);
-        
+
         if (parts.length >= 2) {
             const mnemonic = parts[0];
             const operands = parts.slice(1).join(' ');
             return `${mnemonic}\t${operands}`;
         }
-        
+
         return trimmed;
     }
 
@@ -373,14 +408,14 @@ export class AcmeFormatter {
         // Symbol definitions should maintain their original spacing, just clean up whitespace
         const trimmed = line.trim();
         const parts = trimmed.split(/\s+/);
-        
+
         if (parts.length >= 3) {
             const symbol = parts[0];
             const equals = parts[1];
             const value = parts.slice(2).join(' ');
             return `${symbol} ${equals} ${value}`;
         }
-        
+
         return trimmed;
     }
 
@@ -388,14 +423,14 @@ export class AcmeFormatter {
         // PC definitions should maintain their original spacing, just clean up whitespace
         const trimmed = line.trim();
         const parts = trimmed.split(/\s+/);
-        
+
         if (parts.length >= 3) {
             const pc = parts[0];
             const equals = parts[1];
             const value = parts.slice(2).join(' ');
             return `${pc} ${equals} ${value}`;
         }
-        
+
         return trimmed;
     }
 
@@ -410,7 +445,7 @@ export class AcmeFormatter {
 
     isLabel(line: string): boolean {
         const trimmed = line.trim();
-        
+
         // Exclude empty lines and comments
         if (trimmed === '' || trimmed.startsWith(';') || trimmed.startsWith('//')) {
             return false;
@@ -425,6 +460,49 @@ export class AcmeFormatter {
             return true;
         }
         // Check for word labels (not instructions, not directives)
+        if (/^[a-zA-Z_@][a-zA-Z0-9_@]*$/.test(trimmed)) {
+            // Make sure it's not a known instruction or directive
+            const upper = trimmed.toUpperCase();
+            if (AcmeFormatter.getInstructions().includes(upper)) {
+                return false;
+            }
+            // Not a directive (starts with !)
+            if (trimmed.startsWith('!')) {
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    isColonLabel(line: string): boolean {
+        const trimmed = line.trim();
+
+        // Exclude empty lines and comments
+        if (trimmed === '' || trimmed.startsWith(';') || trimmed.startsWith('//')) {
+            return false;
+        }
+
+        // Check for labels ending with colon
+        if (trimmed.endsWith(':')) {
+            return true;
+        }
+        // Check for anonymous labels (+ or -)
+        if (/^[+\-]+$/.test(trimmed)) {
+            return true;
+        }
+        return false;
+    }
+
+    isInlineLabel(line: string): boolean {
+        const trimmed = line.trim();
+
+        // Exclude empty lines and comments
+        if (trimmed === '' || trimmed.startsWith(';') || trimmed.startsWith('//')) {
+            return false;
+        }
+
+        // Check for word labels that don't end with colon (not instructions, not directives)
         if (/^[a-zA-Z_@][a-zA-Z0-9_@]*$/.test(trimmed)) {
             // Make sure it's not a known instruction or directive
             const upper = trimmed.toUpperCase();
@@ -507,7 +585,8 @@ export class AcmeFormatter {
 
     isClosingBrace(line: string): boolean {
         const trimmed = line.trim();
-        return trimmed === '}' || trimmed.startsWith('}');
+        // Only consider it a closing brace if it's just '}' or '} else' (without opening brace)
+        return trimmed === '}' || (trimmed.startsWith('}') && !trimmed.includes('{'));
     }
 
     hasOpeningBrace(line: string): boolean {
@@ -523,28 +602,28 @@ export class AcmeFormatter {
         const hasCloseBrace = trimmed.includes('}');
         const isBlockStart = trimmed.endsWith('{');
         const isBlockEnd = trimmed.startsWith('}');
-        
+
         return hasOpenBrace && hasCloseBrace && !isBlockStart && !isBlockEnd;
     }
 
     splitInlineBraces(line: string, indentLevel: number, indentString: string): string[] {
         const trimmed = line.trim();
         const result: string[] = [];
-        
+
         // Find the opening brace
         const openBraceIndex = trimmed.indexOf('{');
         const closeBraceIndex = trimmed.lastIndexOf('}');
-        
+
         if (openBraceIndex === -1 || closeBraceIndex === -1 || openBraceIndex >= closeBraceIndex) {
             // Malformed braces, return as-is
             return [line];
         }
-        
+
         // Extract parts
         const beforeBrace = trimmed.substring(0, openBraceIndex).trim();
         const insideBraces = trimmed.substring(openBraceIndex + 1, closeBraceIndex).trim();
         const afterBrace = trimmed.substring(closeBraceIndex + 1).trim();
-        
+
         // Apply the same indentation logic as the normal formatter
         // For conditional directives, they should be indented when inside blocks
         let firstLineIndent = indentLevel;
@@ -555,17 +634,17 @@ export class AcmeFormatter {
             // Other control directives in preamble stay at left margin
             firstLineIndent = 0;
         }
-        
+
         // Add the line with opening brace - respect determined indentation level
         const indentedFirstLine = indentString.repeat(firstLineIndent) + beforeBrace + ' {';
         result.push(indentedFirstLine);
-        
+
         // Add the content inside braces with proper indentation
         if (insideBraces) {
             const indentedContent = indentString.repeat(indentLevel + 1) + insideBraces;
             result.push(indentedContent);
         }
-        
+
         // Add the closing brace with proper indentation
         const indentedCloseBrace = indentString.repeat(indentLevel) + '}';
         if (afterBrace) {
@@ -573,7 +652,7 @@ export class AcmeFormatter {
         } else {
             result.push(indentedCloseBrace);
         }
-        
+
         return result;
     }
 }

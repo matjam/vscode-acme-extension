@@ -1,4 +1,4 @@
-*.prog
+*.prg
 .DS_Store
 *.tgz
 *.vsix

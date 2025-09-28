@@ -6,13 +6,13 @@
       "include": "#comments"
     },
     {
+      "include": "#instructions"
+    },
+    {
       "include": "#directives"
     },
     {
       "include": "#labels"
-    },
-    {
-      "include": "#instructions"
     },
     {
       "include": "#numbers"
@@ -44,11 +44,19 @@
       "patterns": [
         {
           "name": "keyword.control.directive.acme",
-          "match": "^\\s*(!\\w+)\\b"
+          "match": "(!\\w+)\\b"
         },
         {
           "name": "keyword.control.directive.acme",
-          "match": "\\b(!\\w+)\\b"
+          "match": "\\b([a-zA-Z_@][a-zA-Z0-9_@]*)\\s+(!\\w+)\\b",
+          "captures": {
+            "1": {
+              "name": "entity.name.function.acme"
+            },
+            "2": {
+              "name": "keyword.control.directive.acme"
+            }
+          }
         },
         {
           "name": "keyword.control.conditional.acme",
@@ -76,35 +84,51 @@
         },
         {
           "name": "keyword.control.data.acme",
-          "match": "\\b(!8|!16|!24|!32|!by|!byte|!wo|!word|!d24|!pet|!text|!scr|!fill|!fillw|!skip|!skipw)\\b"
+          "match": "(!8|!16|!24|!32|!by|!byte|!wo|!word|!d24|!pet|!text|!scr|!fill|!fillw|!skip|!skipw)\\b"
+        },
+        {
+          "name": "keyword.control.data.acme",
+          "match": "\\b([a-zA-Z_@][a-zA-Z0-9_@]*)\\s+(!8|!16|!24|!32|!by|!byte|!wo|!word|!d24|!pet|!text|!scr|!fill|!fillw|!skip|!skipw)\\b",
+          "captures": {
+            "1": {
+              "name": "entity.name.function.acme"
+            },
+            "2": {
+              "name": "keyword.control.data.acme"
+            }
+          }
         }
       ]
     },
     "labels": {
       "patterns": [
         {
-          "name": "entity.name.tag.label.acme",
-          "match": "^\\s*([a-zA-Z_@][a-zA-Z0-9_@]*)\\s*:"
+          "name": "entity.name.function.acme",
+          "match": "^\\s*([a-zA-Z_@][a-zA-Z0-9_@]*):"
         },
         {
-          "name": "entity.name.tag.label.acme",
-          "match": "\\b([a-zA-Z_@][a-zA-Z0-9_@]*)\\s*:"
+          "name": "entity.name.function.acme",
+          "match": "\\b([a-zA-Z_@][a-zA-Z0-9_@]*):"
         },
         {
-          "name": "entity.name.tag.local-label.acme",
-          "match": "^\\s*([+-]+)\\s*:"
+          "name": "entity.name.function.acme",
+          "match": "^\\s*([+-]+):"
         },
         {
-          "name": "entity.name.tag.local-label.acme",
-          "match": "\\b([+-]+)\\s*:"
+          "name": "entity.name.function.acme",
+          "match": "\\b([+-]+):"
         },
         {
-          "name": "entity.name.tag.anonymous-label.acme",
+          "name": "entity.name.function.acme",
           "match": "^\\s*([+-]+)(?=\\s|$)"
         },
         {
-          "name": "entity.name.tag.anonymous-label.acme",
+          "name": "entity.name.function.acme",
           "match": "\\b([+-]+)(?=\\s|$)"
+        },
+        {
+          "name": "entity.name.function.acme",
+          "match": "^\\s*([a-zA-Z_@][a-zA-Z0-9_@]{3,})(?=\\s*$)"
         }
       ]
     },
@@ -113,6 +137,18 @@
         {
           "name": "keyword.control.instruction.acme",
           "match": "(?i)\\b(adc|adcq|alr|anc|and|andq|arr|asl|aslq|asr|asrq|asw|bbr0|bbr1|bbr2|bbr3|bbr4|bbr5|bbr6|bbr7|bbs0|bbs1|bbs2|bbs3|bbs4|bbs5|bbs6|bbs7|bcc|bcs|beq|bit|bitq|bmi|bne|bpl|bra|brk|bsr|bvc|bvs|clc|cld|cle|cli|clv|cmp|cmpq|cpx|cpy|cpz|dcp|dec|deq|dew|dex|dey|dez|eom|eor|eorq|inc|inq|inw|inx|iny|inz|isc|jmp|jsr|kil|las|lax|lda|ldq|ldx|ldy|ldz|lsr|lsrq|map|neg|nop|ora|orq|pha|php|phw|phx|phy|phz|pla|plp|plx|ply|plz|rla|rmb0|rmb1|rmb2|rmb3|rmb4|rmb5|rmb6|rmb7|rol|rolq|ror|rorq|row|rra|rsvq|rti|rts|sax|sbc|sbcq|sbx|sec|sed|see|sei|sha|shx|shy|slo|smb0|smb1|smb2|smb3|smb4|smb5|smb6|smb7|sre|sta|stq|stx|sty|stz|tab|tas|tax|tay|taz|tba|trb|tsb|tsx|tsy|txa|txs|tya|tys|tza|xaa)\\b"
+        },
+        {
+          "name": "keyword.control.instruction.acme",
+          "match": "(?i)\\b([a-zA-Z_@][a-zA-Z0-9_@]*)\\s+(adc|adcq|alr|anc|and|andq|arr|asl|aslq|asr|asrq|asw|bbr0|bbr1|bbr2|bbr3|bbr4|bbr5|bbr6|bbr7|bbs0|bbs1|bbs2|bbs3|bbs4|bbs5|bbs6|bbs7|bcc|bcs|beq|bit|bitq|bmi|bne|bpl|bra|brk|bsr|bvc|bvs|clc|cld|cle|cli|clv|cmp|cmpq|cpx|cpy|cpz|dcp|dec|deq|dew|dex|dey|dez|eom|eor|eorq|inc|inq|inw|inx|iny|inz|isc|jmp|jsr|kil|las|lax|lda|ldq|ldx|ldy|ldz|lsr|lsrq|map|neg|nop|ora|orq|pha|php|phw|phx|phy|phz|pla|plp|plx|ply|plz|rla|rmb0|rmb1|rmb2|rmb3|rmb4|rmb5|rmb6|rmb7|rol|rolq|ror|rorq|row|rra|rsvq|rti|rts|sax|sbc|sbcq|sbx|sec|sed|see|sei|sha|shx|shy|slo|smb0|smb1|smb2|smb3|smb4|smb5|smb6|smb7|sre|sta|stq|stx|sty|stz|tab|tas|tax|tay|taz|tba|trb|tsb|tsx|tsy|txa|txs|tya|tys|tza|xaa)\\b",
+          "captures": {
+            "1": {
+              "name": "entity.name.function.acme"
+            },
+            "2": {
+              "name": "keyword.control.instruction.acme"
+            }
+          }
         }
       ]
     },
